@@ -44,11 +44,10 @@
             }
         });
 
-        // Retrieve and store the most recent bid
         let lastBidAmount = null;
         onValue(bidsRef, (snapshot) => {
             snapshot.forEach((childSnapshot) => {
-                lastBidAmount = childSnapshot.val().bid;  // Update to the latest bid value
+                lastBidAmount = childSnapshot.val().bid;
             });
         });
 
@@ -56,20 +55,18 @@
             event.preventDefault();
             const vendorName = document.getElementById("vendorName").value.trim();
             const bidAmount = parseFloat(document.getElementById("bidAmount").value);
-            const timestamp = new Date().toLocaleTimeString();  // Only show time, not date
+            const timestamp = new Date().toLocaleTimeString();
 
             if (!vendorName || isNaN(bidAmount) || bidAmount <= 0) {
                 alert("Please enter a valid vendor name and bid amount.");
                 return;
             }
 
-            // Validate that the new bid is within the acceptable range and less than the last bid
             if (lastBidAmount !== null && (bidAmount >= lastBidAmount || bidAmount < lastBidAmount * 0.95)) {
                 alert(`Bid must be less than the previous bid and within 5%. Last bid was OMR ${lastBidAmount}`);
-                return;  // Exit the function to prevent the bid from being submitted
+                return;
             }
 
-            // If validation passed, submit the bid
             push(bidsRef, { vendor: vendorName, bid: bidAmount, time: timestamp });
             document.getElementById("vendorName").value = "";
             document.getElementById("bidAmount").value = "";
@@ -97,7 +94,10 @@
 
             bids.sort((a, b) => b.bid - a.bid);
             bids.forEach(bidData => {
-                allBidsHTML += `<li>OMR ${bidData.bid} - ${bidData.time}</li>`;
+                allBidsHTML += `<div style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px; text-align: left;">
+                    <strong>Bid amount:</strong> OMR ${bidData.bid} <br>
+                    <strong>Time submitted:</strong> ${bidData.time}
+                </div>`;
             });
 
             document.getElementById("allBids").innerHTML = allBidsHTML;
@@ -108,48 +108,15 @@
             bidChart.data.datasets[0].data = data;
             bidChart.update();
         });
-
-        window.resetBids = () => {
-            const pin = prompt("Enter PIN to reset bids:");
-            if (pin === "6666") {
-                if (confirm("Are you sure you want to reset all bids?")) {
-                    remove(bidsRef).then(() => {
-                        alert("All bids have been reset!");
-                    }).catch((error) => {
-                        alert("Error resetting bids: " + error.message);
-                    });
-                }
-            } else {
-                alert("Incorrect PIN! Reset not allowed.");
-            }
-        };
     </script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; }
         .container { max-width: 90%; margin: auto; padding: 15px; }
-        button { padding: 15px 25px; font-size: 16px; margin: 10px; width: 100%; max-width: 200px; cursor: pointer; }
-        input { padding: 15px; margin: 10px 0; width: 100%; max-width: 300px; font-size: 18px; }
+        button, input { padding: 15px; margin: 10px 0; width: 100%; max-width: 300px; font-size: 18px; }
         .golden-box { background-color: gold; padding: 20px; font-weight: bold; border-radius: 5px; margin-top: 20px; }
-        .header-image { width: 100%; max-width: 650px; height: auto; margin: 0 auto; }
-        .footer-text { margin-top: 30px; font-size: 16px; color: #555; }
-
-        /* Responsive styles */
-        @media (max-width: 768px) {
-            h2, h3, h4 { font-size: 24px; }
-            button, input { font-size: 18px; }
-            .container { padding: 10px; }
-        }
-
-        @media (max-width: 480px) {
-            h2, h3, h4 { font-size: 20px; }
-            .footer-text { font-size: 14px; }
-            button, input { font-size: 16px; padding: 12px; }
-            .container { padding: 5px; }
-        }
     </style>
 </head>
 <body>
-    <!-- Header Image -->
     <img src="header-image.jpg" alt="Header Image" class="header-image">
     
     <div class="container">
@@ -162,14 +129,9 @@
         <h3>Lowest Bid: <span id="lowestBid">No bids yet</span></h3>
         <div class="golden-box"><span id="poAward">PO will be awarded to: No bids yet</span></div>
         <h4>All Bids (Highest to Lowest):</h4>
-        <ul id="allBids"></ul>
+        <ul id="allBids" style="list-style: none; padding: 0;"></ul>
         <canvas id="bidChart" width="400" height="200"></canvas>
         <button onclick="resetBids()" style="background-color: green; color: white;">Reset Bids</button>
-    </div>
-
-    <!-- Footer Text -->
-    <div class="footer-text">
-        <p>Mohammed Al Balushi, Mech Eng GDP</p>
     </div>
 </body>
 </html>
