@@ -22,45 +22,27 @@
         const bidsRef = ref(db, "bids");
 
         let bidChart;
-		const ctx = document.getElementById("bidChart").getContext("2d");
-		bidChart = new Chart(ctx, {
-			type: "line",
-			data: {
-				labels: [],
-				datasets: [{
-					label: "Bid Amount",
-					data: [],
-					borderColor: "#007bff",  // Modern blue shade
-					borderWidth: 3,
-					pointBackgroundColor: "#007bff",
-					pointRadius: 5,
-					pointHoverRadius: 7,
-					fill: true,
-					backgroundColor: "rgba(0, 123, 255, 0.2)",  // Light gradient fill
-					tension: 0.4 // Makes lines smooth & curved
-				}]
-			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: false,  // Allows it to fit smaller screens
-				elements: { line: { borderCapStyle: "round" } },
-				scales: {
-					x: { 
-						title: { display: true, text: "Time", color: "#333", font: { size: 14 } },
-						grid: { display: false } 
-					},
-					y: { 
-						title: { display: true, text: "Bid Amount (OMR)", color: "#333", font: { size: 14 } },
-						grid: { color: "rgba(200, 200, 200, 0.2)" }
-					}
-				},
-				plugins: {
-					legend: { display: false },
-					tooltip: { enabled: true, backgroundColor: "rgba(0, 0, 0, 0.7)", titleColor: "#fff", bodyColor: "#fff" }
-				}
-			}
-		});
-
+        const ctx = document.getElementById("bidChart").getContext("2d");
+        bidChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Bid Amount",
+                    data: [],
+                    borderColor: "blue",
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: "Time" } },
+                    y: { title: { display: true, text: "Bid Amount (OMR)" } }
+                }
+            }
+        });
 
         let lastBidAmount = null;
         onValue(bidsRef, (snapshot) => {
@@ -147,13 +129,6 @@
         .container { max-width: 90%; margin: auto; padding: 15px; }
         button, input { padding: 15px; margin: 10px 0; width: 100%; max-width: 300px; font-size: 18px; }
         .golden-box { background-color: gold; padding: 20px; font-weight: bold; border-radius: 5px; margin-top: 20px; }
-		
-	#bidChart {
-		max-width: 100%;
-		height: auto;
-		min-height: 250px;  /* Ensures visibility on small screens */
-	}
-
     </style>
 </head>
 <body>
