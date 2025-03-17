@@ -21,6 +21,17 @@
         const db = getDatabase(app);
         const bidsRef = ref(db, "bids");
 
+        let lastBidAmount = null;
+        onValue(bidsRef, (snapshot) => {
+            let bids = [];
+            snapshot.forEach((childSnapshot) => {
+                bids.push(childSnapshot.val().bid);
+            });
+            if (bids.length > 0) {
+                lastBidAmount = Math.min(...bids); // Get the lowest bid as the last bid
+            }
+        });
+
         let bidChart;
         const ctx = document.getElementById("bidChart").getContext("2d");
         bidChart = new Chart(ctx, {
@@ -67,6 +78,14 @@
             if (!vendorName || isNaN(bidAmount) || bidAmount <= 0) {
                 alert("Please enter a valid vendor name and bid amount.");
                 return;
+            }
+
+            if (lastBidAmount !== null) {
+                const minAllowedBid = lastBidAmount * 0.95; // 5% lower than last bid
+                if (bidAmount >= lastBidAmount || bidAmount < minAllowedBid) {
+                    alert(`Bid must be less than the previous bid and within 5%. Last bid was OMR ${lastBidAmount}`);
+                    return;
+                }
             }
 
             push(bidsRef, { vendor: vendorName, bid: bidAmount, time: timestamp });
@@ -121,6 +140,7 @@
                 if (confirm("Are you sure you want to reset all bids?")) {
                     remove(bidsRef).then(() => {
                         alert("All bids have been reset!");
+                        lastBidAmount = null; // Reset last bid tracking
                     }).catch((error) => {
                         alert("Error resetting bids: " + error.message);
                     });
